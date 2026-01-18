@@ -1,0 +1,24 @@
+name: Issue Comment Automation
+on:
+  issues:
+    types:
+      - opened
+jobs:
+  comment_issue:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Add comment
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const issue = context.issue
+            const labels = issue.labels.map(label => label.name)
+            const commentBody = labels.includes('bug') ? 'Thank you. We will fix it.' : labels.includes('feature') ? 'Thank you, we will consider to include this feature.' : labels.includes('discussion') ? 'Thanks for starting this discussion! We welcome community input.' : ''
+            if (commentBody) {
+              github.issues.createComment({
+                issue_number: issue.number,
+                owner: issue.owner,
+                repo: issue.repo,
+                body: commentBody
+              })
+            }
